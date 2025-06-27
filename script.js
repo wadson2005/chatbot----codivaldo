@@ -7,9 +7,26 @@ const startButton = document.getElementById('start-button');
 const chatForm = document.getElementById('chat-form');
 const promptInput = document.getElementById('prompt-input');
 const chatWindow = document.getElementById('chat-window');
+const forgetApiKeyBtn = document.getElementById('forget-api-key-btn');
 
-let userApiKey = '';
-const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+let userApiKey = localStorage.getItem('userApiKey') || '';
+let sessionId = localStorage.getItem('chatSessionId');
+
+if (!sessionId) {
+    sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('chatSessionId', sessionId);
+}
+
+function initializeApp() {
+    if (userApiKey) {
+        apiKeySection.style.display = 'none';
+        chatSection.style.display = 'flex';
+        promptInput.focus();
+    } else {
+        apiKeySection.style.display = 'flex';
+        chatSection.style.display = 'none';
+    }
+}
 
 startButton.addEventListener('click', () => {
     const apiKey = apiKeyInput.value.trim();
@@ -18,9 +35,17 @@ startButton.addEventListener('click', () => {
         return;
     }
     userApiKey = apiKey;
+    localStorage.setItem('userApiKey', userApiKey);
+    
     apiKeySection.style.display = 'none';
     chatSection.style.display = 'flex';
     promptInput.focus();
+});
+
+forgetApiKeyBtn.addEventListener('click', () => {
+    localStorage.removeItem('userApiKey');
+    localStorage.removeItem('chatSessionId');
+    location.reload();
 });
 
 chatForm.addEventListener('submit', async (event) => {
@@ -116,11 +141,9 @@ function addMessage(text, type) {
     const messageContentElement = document.createElement('span');
     messageContentElement.classList.add('message-content');
     
-    // Para as mensagens do usuário, o texto é puro.
     if (type === 'user') {
         messageContentElement.textContent = text;
     } else {
-        // Para mensagens do bot, o conteúdo será HTML, mas começamos com o texto de loading.
         messageContentElement.textContent = text;
     }
     
@@ -133,3 +156,5 @@ function addMessage(text, type) {
     
     return messageElement;
 }
+
+initializeApp();

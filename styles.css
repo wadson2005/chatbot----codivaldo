@@ -247,3 +247,36 @@ body {
 .copy-btn:hover {
     background-color: #484e55;
 }
+
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0; /* Impede que o cabeçalho encolha */
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+#forget-api-key-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#forget-api-key-btn:hover {
+    background-color: #5a626d;
+}
