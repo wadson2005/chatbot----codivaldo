@@ -53,35 +53,76 @@ chatForm.addEventListener('submit', async (event) => {
         }
 
         const data = await response.json();
-        
         const messageContentElement = loadingIndicator.querySelector('.message-content');
-        if(messageContentElement) {
-            messageContentElement.textContent = data.response;
-        } else {
-            loadingIndicator.textContent = data.response;
+        
+        if (messageContentElement) {
+            messageContentElement.innerHTML = marked.parse(data.response);
+            addCopyButtonsAndHighlight(messageContentElement);
         }
+        
         loadingIndicator.classList.remove('loading');
 
     } catch (error) {
         const messageContentElement = loadingIndicator.querySelector('.message-content');
-        if(messageContentElement) {
+        if (messageContentElement) {
             messageContentElement.textContent = `Erro: ${error.message}`;
         }
         console.error(error);
     }
 });
 
+function addCopyButtonsAndHighlight(container) {
+    const codeBlocks = container.querySelectorAll('pre code');
+    codeBlocks.forEach((codeBlock) => {
+        hljs.highlightElement(codeBlock);
+
+        const preElement = codeBlock.parentElement;
+        const copyButton = document.createElement('button');
+        copyButton.textContent = 'Copiar';
+        copyButton.className = 'copy-btn';
+        
+        copyButton.addEventListener('click', () => {
+            const codeToCopy = codeBlock.textContent;
+            const textArea = document.createElement('textarea');
+            textArea.value = codeToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                copyButton.textContent = 'Copiado!';
+            } catch (err) {
+                console.error('Falha ao copiar texto: ', err);
+                copyButton.textContent = 'Erro!';
+            }
+            document.body.removeChild(textArea);
+
+            setTimeout(() => {
+                copyButton.textContent = 'Copiar';
+            }, 2000);
+        });
+
+        preElement.appendChild(copyButton);
+    });
+}
+
 function addMessage(text, type) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', `${type}-message`);
     
-    const senderNameElement = document.createElement('strong');
+    const senderNameElement = document.createElement('h3');
     senderNameElement.classList.add('sender-name');
     senderNameElement.textContent = (type === 'user') ? 'Você' : 'Codivaldo';
 
     const messageContentElement = document.createElement('span');
     messageContentElement.classList.add('message-content');
-    messageContentElement.textContent = text;
+    
+    // Para as mensagens do usuário, o texto é puro.
+    if (type === 'user') {
+        messageContentElement.textContent = text;
+    } else {
+        // Para mensagens do bot, o conteúdo será HTML, mas começamos com o texto de loading.
+        messageContentElement.textContent = text;
+    }
     
     messageElement.appendChild(senderNameElement);
     messageElement.appendChild(messageContentElement);

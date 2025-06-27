@@ -194,3 +194,56 @@ body {
 .bot-message .sender-name {
     color: #0056b3;
 }
+
+/* Estilos para o conteúdo renderizado via Markdown */
+.message-content pre {
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 1.2em;
+    padding-top: 3em;
+    border-radius: 8px;
+    overflow-x: auto;
+    position: relative;
+}
+
+.message-content code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+}
+
+/* Estilos para outros elementos de Markdown */
+.message-content blockquote {
+    border-left: 4px solid #ccc;
+    padding-left: 1em;
+    margin-left: 0;
+    color: #555;
+    font-style: italic;
+}
+
+.message-content ul, .message-content ol {
+    padding-left: 1.5em;
+}
+
+/* Botão de copiar */
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #5a626d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease, background-color 0.3s ease;
+    font-size: 0.8em;
+}
+
+.message-content pre:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn:hover {
+    background-color: #484e55;
+}
