@@ -1,0 +1,176 @@
+/* frontend/css/style.css */
+
+/* Configuração geral do corpo da página */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
+}
+
+/* O container principal que engloba todo o chat */
+.container {
+    width: 100%;
+    max-width: 600px;
+    height: 90vh;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden; /* Garante que os cantos arredondados sejam aplicados a tudo dentro */
+}
+
+/* Estilo da seção inicial onde o usuário insere a chave */
+#api-key-section {
+    padding: 40px 30px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1; /* Faz com que esta seção ocupe o espaço disponível */
+}
+
+#api-key-section h2 {
+    margin-top: 0;
+    color: #0056b3;
+}
+
+#api-key-section p {
+    color: #555;
+    line-height: 1.6;
+}
+
+#api-key-input {
+    width: 90%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin: 15px auto;
+    font-size: 1rem;
+}
+
+#api-key-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
+/* Estilo do botão de Iniciar */
+#start-button {
+    padding: 12px 24px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#start-button:hover {
+    background-color: #0056b3;
+}
+
+/* Seção principal do chat (inicialmente escondida) */
+#chat-section {
+    display: none; /* Começa escondida */
+    flex-direction: column;
+    height: 100%;
+}
+
+/* A janela onde as mensagens aparecem */
+.chat-window {
+    flex-grow: 1; /* Faz a janela de chat ocupar todo o espaço vertical disponível */
+    padding: 20px;
+    overflow-y: auto; /* Adiciona uma barra de rolagem se o conteúdo for maior que a tela */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Adiciona um espaço entre as mensagens */
+}
+
+/* Estilo base para todas as mensagens */
+.message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+    line-height: 1.5;
+}
+
+/* Mensagem do usuário (azul, na direita) */
+.user-message {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end; /* Alinha à direita */
+    margin-left: auto;
+}
+
+/* Mensagem do bot (cinza, na esquerda) */
+.bot-message {
+    background-color: #e9ecef;
+    color: #333;
+    align-self: flex-start; /* Alinha à esquerda */
+    margin-right: auto;
+}
+
+/* Indicador de "Pensando..." */
+.loading {
+    color: #777;
+    font-style: italic;
+}
+
+/* Formulário de entrada de texto na parte inferior */
+.chat-input-form {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+#prompt-input {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+    font-size: 1rem;
+}
+
+#prompt-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+#send-button {
+    padding: 12px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#send-button:hover {
+    background-color: #218838;
+}
+
+/* Classe para leitores de tela, esconde visualmente mas mantém acessível */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

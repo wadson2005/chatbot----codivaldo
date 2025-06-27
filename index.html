@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat do wadsinho</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" type="module" defer></script>
+</head>
+<body>
+    
+    <div class="container">
+        <div id="api-key-section">
+            <h2>Bem vindo ao meu chat</h2>
+            <p>para começar, insira sua Api do gemine</p>
+            <label for="api-key-input" class="sr-only">chave da api do google</label>
+            <input type="password" id="api-key-input" placeholder="cole sua chave do google aqui">
+            <button id="start-button">iniciar chat</button>
+        </div>
+
+        <main id="chat-section">
+            <div class="chat-window" id="chat-window" aria-live="polite" role="log">            </div>
+
+<form id="chat-form" class="chat-input-form" aria-label="Formulario de envio de mensagens">
+    <label for="prompt-input" class="sr-only"> Digite sua mensagem</label>
+    <input type="text" id="prompt-input" placeholder="digite sua mensagem..."
+    autocomplete="off" required>
+    <button id="send-button" type="submit">enviar</button>
+</form>
+        </main>
+    </div>
+</body>
+</html>
