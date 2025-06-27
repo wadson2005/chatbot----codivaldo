@@ -174,3 +174,23 @@ body {
     white-space: nowrap;
     border: 0;
 }
+
+.message {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sender-name {
+    font-weight: bold;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.user-message .sender-name {
+    color: #e9ecef; /* Um cinza claro para contrastar com o fundo azul */
+}
+
+.bot-message .sender-name {
+    color: #0056b3;
+}

@@ -8,53 +8,42 @@ const chatForm = document.getElementById('chat-form');
 const promptInput = document.getElementById('prompt-input');
 const chatWindow = document.getElementById('chat-window');
 
-// ---VARIÁVEIS DE ESTADO ---
 let userApiKey = '';
+const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-//  EVENT LISTENERS
 startButton.addEventListener('click', () => {
     const apiKey = apiKeyInput.value.trim();
-    // Validação simples: se a chave estiver vazia, avisa o usuário.
     if (!apiKey) {
         alert('Por favor, insira uma chave de API válida.');
         return;
     }
-
     userApiKey = apiKey;
-    
-    // Esconde a seção de boas-vindas e mostra a seção do chat.
     apiKeySection.style.display = 'none';
     chatSection.style.display = 'flex';
     promptInput.focus();
 });
 
-// Ação para quando o formulário de chat é enviado
 chatForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const prompt = promptInput.value.trim();
-    
-    if (!prompt) return; 
+    if (!prompt) return;
 
     addMessage(prompt, 'user');
     promptInput.value = '';
-
-    // Adiciona uma mensagem de "loading" para o usuário saber que o bot está "pensando".
+    
     const loadingIndicator = addMessage('Pensando...', 'bot');
     loadingIndicator.classList.add('loading');
     
     try {
-        // Endereço do servidor Flask que está rodando localmente.
-        const backendUrl = 'http://127.0.0.1:5000/chat'; 
+        const backendUrl = 'http://127.0.0.1:5000/chat';
 
         const response = await fetch(backendUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            // Conteúdo da requisição
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 prompt: prompt,
-                apiKey: userApiKey 
+                apiKey: userApiKey,
+                sessionId: sessionId
             })
         });
 
@@ -64,20 +53,39 @@ chatForm.addEventListener('submit', async (event) => {
         }
 
         const data = await response.json();
-        loadingIndicator.textContent = data.response; 
+        
+        const messageContentElement = loadingIndicator.querySelector('.message-content');
+        if(messageContentElement) {
+            messageContentElement.textContent = data.response;
+        } else {
+            loadingIndicator.textContent = data.response;
+        }
         loadingIndicator.classList.remove('loading');
+
     } catch (error) {
-        loadingIndicator.textContent = `Erro: ${error.message}`;
+        const messageContentElement = loadingIndicator.querySelector('.message-content');
+        if(messageContentElement) {
+            messageContentElement.textContent = `Erro: ${error.message}`;
+        }
         console.error(error);
     }
 });
 
-
-
 function addMessage(text, type) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', `${type}-message`);
-    messageElement.textContent = text;
+    
+    const senderNameElement = document.createElement('strong');
+    senderNameElement.classList.add('sender-name');
+    senderNameElement.textContent = (type === 'user') ? 'Você' : 'Codivaldo';
+
+    const messageContentElement = document.createElement('span');
+    messageContentElement.classList.add('message-content');
+    messageContentElement.textContent = text;
+    
+    messageElement.appendChild(senderNameElement);
+    messageElement.appendChild(messageContentElement);
+    
     chatWindow.appendChild(messageElement);
     
     chatWindow.scrollTop = chatWindow.scrollHeight; 
