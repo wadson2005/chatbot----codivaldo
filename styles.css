@@ -280,3 +280,55 @@ body {
 #forget-api-key-btn:hover {
     background-color: #5a626d;
 }
+
+/* Botão de anexo (clipe) */
+.attach-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.attach-btn:hover {
+    color: #343a40;
+}
+
+/* Container da pré-visualização da imagem */
+.image-preview-container {
+    position: relative;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+#image-preview {
+    max-height: 100px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Botão para remover a imagem selecionada */
+.remove-image-btn {
+    position: absolute;
+    top: 0px;
+    left: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 1.2rem;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.remove-image-btn:hover {
+    opacity: 1;
+}

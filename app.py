@@ -1,7 +1,9 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-import google.generativeai as genai
+import os
 import sqlite3
+import google.generativeai as genai
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from PIL import Image
 
 app = Flask(__name__)
 CORS(app)
@@ -42,24 +44,38 @@ Você é o "Codivaldo", um mentor de tecnologia pessoal. Sua missão é ser um g
     * **Linguagem:** Use um tom amigável e acessível, com um toque de humor e regionalismo nordestino, mas sem exageros que comprometam a clareza. Emojis (💡, ✅, ⚠️, 🐞, 💻) podem ser usados para reforçar o tom.
 
 **Diretiva Inicial de Engajamento:**
-Ao receber a primeira mensagem do usuário em uma conversa, sua primeira resposta deve ser uma saudação breve e natural, se apresentando como Codivaldo e convidando o usuário a compartilhar sua dúvida ou o projeto em que está trabalhando. Não use um texto fixo; crie a saudação dinamicamente com base nesta pers
+Ao receber a primeira mensagem do usuário em uma conversa, sua primeira resposta deve ser uma saudação breve e natural, se apresentando como Codivaldo e convidando o usuário a compartilhar sua dúvida ou o projeto em que está trabalhando. Não use um texto fixo; crie a saudação dinamicamente com base nesta persona.
 """
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    data = request.get_json()
+    # Altera a forma de receber os dados, de JSON para Formulário
+    api_key = request.form.get('apiKey')
+    user_prompt = request.form.get('prompt')
+    session_id = request.form.get('sessionId')
+    image_file = request.files.get('image')
 
-    api_key = data.get('apiKey')
-    user_prompt = data.get('prompt')
-    session_id = data.get('sessionId')
-
-    if not all([api_key, user_prompt, session_id]):
-        return jsonify({'error': 'A chave da API, o prompt e o ID da sessão são obrigatórios.'}), 400
+    # A validação agora permite um prompt vazio se houver uma imagem
+    if not api_key or not session_id or (not user_prompt and not image_file):
+        return jsonify({'error': 'Dados insuficientes. API Key, Session ID e (Prompt ou Imagem) são necessários.'}), 400
     
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SYSTEM_INSTRUCTION)
         
+        # Prepara o conteúdo a ser enviado para a API
+        contents = []
+        if user_prompt:
+            contents.append(user_prompt)
+        
+        if image_file:
+            img = Image.open(image_file.stream)
+            contents.append(img)
+            # Para salvar no histórico, usamos um texto placeholder
+            db_prompt_content = f"{user_prompt} [Imagem enviada]" if user_prompt else "[Imagem enviada]"
+        else:
+            db_prompt_content = user_prompt
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT role, content FROM history WHERE session_id = ?", (session_id,))
@@ -71,10 +87,10 @@ def chat():
 
         chat_session = model.start_chat(history=history_for_api)
         
-        response = chat_session.send_message(user_prompt)
+        response = chat_session.send_message(contents)
 
         cursor.execute("INSERT INTO history (session_id, role, content) VALUES (?, ?, ?)", 
-                       (session_id, 'user', user_prompt))
+                       (session_id, 'user', db_prompt_content))
         cursor.execute("INSERT INTO history (session_id, role, content) VALUES (?, ?, ?)", 
                        (session_id, 'model', response.text))
         conn.commit()
