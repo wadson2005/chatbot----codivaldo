@@ -81,8 +81,7 @@ chatForm.addEventListener('submit', async (event) => {
     const prompt = promptInput.value.trim();
     if (!prompt && !attachedImageFile) return;
 
-    // --- CORREÇÃO DA LÓGICA ---
-    // 1. Prepara o pacote de dados ANTES de limpar a interface.
+    
     const formData = new FormData();
     formData.append('prompt', prompt);
     formData.append('apiKey', userApiKey);
@@ -94,7 +93,7 @@ chatForm.addEventListener('submit', async (event) => {
     // 2. Adiciona a mensagem à tela.
     addMessage(prompt, 'user', attachedImageFile);
     
-    // 3. AGORA sim, limpa a interface.
+
     promptInput.value = '';
     resetImageAttachment();
 
@@ -106,7 +105,7 @@ chatForm.addEventListener('submit', async (event) => {
 
         const response = await fetch(backendUrl, {
             method: 'POST',
-            body: formData // Envia o FormData já preparado
+            body: formData 
         });
 
         if (!response.ok) {
