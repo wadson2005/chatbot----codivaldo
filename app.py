@@ -49,58 +49,70 @@ Ao receber a primeira mensagem do usuário em uma conversa, sua primeira respost
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    # Altera a forma de receber os dados, de JSON para Formulário
     api_key = request.form.get('apiKey')
     user_prompt = request.form.get('prompt')
     session_id = request.form.get('sessionId')
     image_file = request.files.get('image')
 
-    # A validação agora permite um prompt vazio se houver uma imagem
     if not api_key or not session_id or (not user_prompt and not image_file):
         return jsonify({'error': 'Dados insuficientes. API Key, Session ID e (Prompt ou Imagem) são necessários.'}), 400
     
+    conn = None
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SYSTEM_INSTRUCTION)
         
-        # Prepara o conteúdo a ser enviado para a API
-        contents = []
-        if user_prompt:
-            contents.append(user_prompt)
-        
+        response_text = ""
+        db_prompt_content = user_prompt or ""
+
         if image_file:
-            img = Image.open(image_file.stream)
-            contents.append(img)
-            # Para salvar no histórico, usamos um texto placeholder
+            # MODO ANÁLISE DE IMAGEM
+            # Usamos o mesmo modelo, mas sem a persona, para focar na visão.
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            img = Image.open(image_file.stream).convert("RGB")
+            
+            prompt_parts = []
+            if user_prompt:
+                prompt_parts.append(user_prompt)
+            prompt_parts.append(img)
+
+            response = model.generate_content(prompt_parts)
+            response_text = response.text
             db_prompt_content = f"{user_prompt} [Imagem enviada]" if user_prompt else "[Imagem enviada]"
         else:
-            db_prompt_content = user_prompt
+            # MODO CONVERSA (SÓ TEXTO)
+            model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SYSTEM_INSTRUCTION)
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT role, content FROM history WHERE session_id = ?", (session_id,))
+            rows = cursor.fetchall()
+            
+            history_for_api = []
+            for row in rows:
+                history_for_api.append({"role": row["role"], "parts": [{"text": row["content"]}]})
 
-        conn = get_db_connection()
+            chat_session = model.start_chat(history=history_for_api)
+            response = chat_session.send_message(user_prompt)
+            response_text = response.text
+        
+        # Salva a interação no banco de dados
+        if not conn:
+            conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT role, content FROM history WHERE session_id = ?", (session_id,))
-        rows = cursor.fetchall()
-        
-        history_for_api = []
-        for row in rows:
-            history_for_api.append({"role": row["role"], "parts": [{"text": row["content"]}]})
-
-        chat_session = model.start_chat(history=history_for_api)
-        
-        response = chat_session.send_message(contents)
-
         cursor.execute("INSERT INTO history (session_id, role, content) VALUES (?, ?, ?)", 
                        (session_id, 'user', db_prompt_content))
         cursor.execute("INSERT INTO history (session_id, role, content) VALUES (?, ?, ?)", 
-                       (session_id, 'model', response.text))
+                       (session_id, 'model', response_text))
         conn.commit()
-        conn.close()
         
-        return jsonify({'response': response.text})
+        return jsonify({'response': response_text})
 
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
         return jsonify({'error': 'Ocorreu um erro ao processar sua solicitação com a API do Gemini.'}), 500
+    
+    finally:
+        if conn:
+            conn.close()
 
 with app.app_context():
     init_db()

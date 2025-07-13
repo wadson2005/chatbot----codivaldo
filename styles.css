@@ -1,6 +1,5 @@
-/* frontend/css/style.css */
 
-/* Configuração geral do corpo da página */
+/* --- CONFIGURAÇÕES GERAIS --- */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
@@ -12,7 +11,6 @@ body {
     color: #333;
 }
 
-/* O container principal que engloba todo o chat */
 .container {
     width: 100%;
     max-width: 600px;
@@ -22,17 +20,17 @@ body {
     display: flex;
     flex-direction: column;
     border-radius: 12px;
-    overflow: hidden; /* Garante que os cantos arredondados sejam aplicados a tudo dentro */
+    overflow: hidden;
 }
 
-/* Estilo da seção inicial onde o usuário insere a chave */
+/* --- SEÇÃO DE ENTRADA DA API KEY --- */
 #api-key-section {
     padding: 40px 30px;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    flex-grow: 1; /* Faz com que esta seção ocupe o espaço disponível */
+    flex-grow: 1;
 }
 
 #api-key-section h2 {
@@ -60,7 +58,6 @@ body {
     box-shadow: 0 0 5px rgba(0,123,255,0.5);
 }
 
-/* Estilo do botão de Iniciar */
 #start-button {
     padding: 12px 24px;
     background-color: #007bff;
@@ -78,59 +75,220 @@ body {
     background-color: #0056b3;
 }
 
-/* Seção principal do chat (inicialmente escondida) */
+/* --- SEÇÃO PRINCIPAL DO CHAT --- */
 #chat-section {
-    display: none; /* Começa escondida */
+    display: none;
     flex-direction: column;
     height: 100%;
 }
 
-/* A janela onde as mensagens aparecem */
-.chat-window {
-    flex-grow: 1; /* Faz a janela de chat ocupar todo o espaço vertical disponível */
-    padding: 20px;
-    overflow-y: auto; /* Adiciona uma barra de rolagem se o conteúdo for maior que a tela */
+.chat-header {
     display: flex;
-    flex-direction: column;
-    gap: 15px; /* Adiciona um espaço entre as mensagens */
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
 }
 
-/* Estilo base para todas as mensagens */
-.message {
+.chat-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+#forget-api-key-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#forget-api-key-btn:hover {
+    background-color: #5a626d;
+}
+
+.chat-window {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* --- ESTILOS DAS MENSAGENS --- */
+article.message {
     padding: 10px 15px;
     border-radius: 18px;
     max-width: 80%;
     line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-/* Mensagem do usuário (azul, na direita) */
 .user-message {
     background-color: #007bff;
     color: white;
-    align-self: flex-end; /* Alinha à direita */
+    align-self: flex-end;
     margin-left: auto;
 }
 
-/* Mensagem do bot (cinza, na esquerda) */
 .bot-message {
     background-color: #e9ecef;
     color: #333;
-    align-self: flex-start; /* Alinha à esquerda */
+    align-self: flex-start;
     margin-right: auto;
 }
 
-/* Indicador de "Pensando..." */
-.loading {
+.sender-name {
+    font-weight: bold;
+    font-size: 0.9em;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.user-message .sender-name {
+    color: #e9ecef;
+}
+
+.bot-message .sender-name {
+    color: #0056b3;
+}
+
+.loading .message-content {
     color: #777;
     font-style: italic;
 }
 
-/* Formulário de entrada de texto na parte inferior */
+.message-image-preview {
+    max-height: 150px;
+    max-width: 100%;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+
+/* --- ESTILOS PARA MARKDOWN --- */
+.message-content pre {
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 1.2em;
+    padding-top: 3em;
+    border-radius: 8px;
+    overflow-x: auto;
+    position: relative;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.message-content code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+}
+
+.message-content blockquote {
+    border-left: 4px solid #ccc;
+    padding-left: 1em;
+    margin-left: 0;
+    color: #555;
+    font-style: italic;
+}
+
+.message-content ul, .message-content ol {
+    padding-left: 1.5em;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #5a626d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease, background-color 0.3s ease;
+    font-size: 0.8em;
+}
+
+.message-content pre:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn:hover {
+    background-color: #484e55;
+}
+
+/* --- FORMULÁRIO DE ENTRADA --- */
+.image-preview-container {
+    position: relative;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+#image-preview {
+    max-height: 100px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 0px;
+    left: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 1.2rem;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.remove-image-btn:hover {
+    opacity: 1;
+}
+
 .chat-input-form {
     display: flex;
     padding: 15px;
     border-top: 1px solid #eee;
     background-color: #f9f9f9;
+    align-items: center;
+}
+
+.attach-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.attach-btn:hover {
+    color: #343a40;
+}
+
+.main-input-area {
+    display: flex;
+    flex-grow: 1;
 }
 
 #prompt-input {
@@ -162,7 +320,7 @@ body {
     background-color: #218838;
 }
 
-/* Classe para leitores de tela, esconde visualmente mas mantém acessível */
+/* --- ACESSIBILIDADE --- */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -173,162 +331,4 @@ body {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-}
-
-.message {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.sender-name {
-    font-weight: bold;
-    font-size: 0.9em;
-    opacity: 0.9;
-}
-
-.user-message .sender-name {
-    color: #e9ecef; /* Um cinza claro para contrastar com o fundo azul */
-}
-
-.bot-message .sender-name {
-    color: #0056b3;
-}
-
-/* Estilos para o conteúdo renderizado via Markdown */
-.message-content pre {
-    background-color: #282c34;
-    color: #abb2bf;
-    padding: 1.2em;
-    padding-top: 3em;
-    border-radius: 8px;
-    overflow-x: auto;
-    position: relative;
-}
-
-.message-content code {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9em;
-}
-
-/* Estilos para outros elementos de Markdown */
-.message-content blockquote {
-    border-left: 4px solid #ccc;
-    padding-left: 1em;
-    margin-left: 0;
-    color: #555;
-    font-style: italic;
-}
-
-.message-content ul, .message-content ol {
-    padding-left: 1.5em;
-}
-
-/* Botão de copiar */
-.copy-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #5a626d;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s ease, background-color 0.3s ease;
-    font-size: 0.8em;
-}
-
-.message-content pre:hover .copy-btn {
-    opacity: 1;
-}
-
-.copy-btn:hover {
-    background-color: #484e55;
-}
-
-
-.chat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #eee;
-    flex-shrink: 0; /* Impede que o cabeçalho encolha */
-}
-
-.chat-header h3 {
-    margin: 0;
-    font-size: 1.2em;
-    color: #333;
-}
-
-#forget-api-key-btn {
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.8em;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-#forget-api-key-btn:hover {
-    background-color: #5a626d;
-}
-
-/* Botão de anexo (clipe) */
-.attach-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #6c757d;
-    padding: 0 10px;
-    transition: color 0.3s ease;
-}
-
-.attach-btn:hover {
-    color: #343a40;
-}
-
-/* Container da pré-visualização da imagem */
-.image-preview-container {
-    position: relative;
-    padding: 10px 20px;
-    background-color: #f8f9fa;
-    border-top: 1px solid #eee;
-}
-
-#image-preview {
-    max-height: 100px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-/* Botão para remover a imagem selecionada */
-.remove-image-btn {
-    position: absolute;
-    top: 0px;
-    left: 10px;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 1.2rem;
-    line-height: 24px;
-    text-align: center;
-    cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
-
-.remove-image-btn:hover {
-    opacity: 1;
 }

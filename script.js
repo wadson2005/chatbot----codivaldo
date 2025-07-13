@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-// Captura dos elementos do HTML (incluindo os novos)
 const apiKeySection = document.getElementById('api-key-section');
 const chatSection = document.getElementById('chat-section');
 const apiKeyInput = document.getElementById('api-key-input');
@@ -15,10 +14,9 @@ const imagePreviewContainer = document.getElementById('image-preview-container')
 const imagePreview = document.getElementById('image-preview');
 const removeImageBtn = document.getElementById('remove-image-btn');
 
-// --- LÓGICA DE PERSISTÊNCIA E ESTADO ---
 let userApiKey = localStorage.getItem('userApiKey') || '';
 let sessionId = localStorage.getItem('chatSessionId');
-let attachedImageFile = null; // Variável para guardar o arquivo da imagem
+let attachedImageFile = null;
 
 if (!sessionId) {
     sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -36,7 +34,12 @@ function initializeApp() {
     }
 }
 
-// --- EVENT LISTENERS ---
+function resetImageAttachment() {
+    attachedImageFile = null;
+    imageInput.value = '';
+    imagePreviewContainer.style.display = 'none';
+}
+
 startButton.addEventListener('click', () => {
     const apiKey = apiKeyInput.value.trim();
     if (!apiKey) {
@@ -54,12 +57,10 @@ forgetApiKeyBtn.addEventListener('click', () => {
     location.reload();
 });
 
-// Lógica para o botão de anexo
 attachImageBtn.addEventListener('click', () => {
-    imageInput.click(); // Abre a janela de seleção de arquivo
+    imageInput.click();
 });
 
-// Lógica para quando uma imagem é selecionada
 imageInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -73,25 +74,29 @@ imageInput.addEventListener('change', (event) => {
     }
 });
 
-// Lógica para remover a imagem anexada
-removeImageBtn.addEventListener('click', () => {
-    attachedImageFile = null;
-    imageInput.value = ''; // Limpa o seletor de arquivo
-    imagePreviewContainer.style.display = 'none';
-});
+removeImageBtn.addEventListener('click', resetImageAttachment);
 
-// Lógica de envio do formulário (com grandes alterações)
 chatForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const prompt = promptInput.value.trim();
     if (!prompt && !attachedImageFile) return;
 
-    // Adiciona a mensagem do usuário (com imagem, se houver)
+    // --- CORREÇÃO DA LÓGICA ---
+    // 1. Prepara o pacote de dados ANTES de limpar a interface.
+    const formData = new FormData();
+    formData.append('prompt', prompt);
+    formData.append('apiKey', userApiKey);
+    formData.append('sessionId', sessionId);
+    if (attachedImageFile) {
+        formData.append('image', attachedImageFile);
+    }
+
+    // 2. Adiciona a mensagem à tela.
     addMessage(prompt, 'user', attachedImageFile);
     
-    // Limpa a interface
+    // 3. AGORA sim, limpa a interface.
     promptInput.value = '';
-    removeImageBtn.click(); // Reutiliza a lógica do botão de remover para limpar a preview
+    resetImageAttachment();
 
     const loadingIndicator = addMessage('Pensando...', 'bot');
     loadingIndicator.classList.add('loading');
@@ -99,18 +104,9 @@ chatForm.addEventListener('submit', async (event) => {
     try {
         const backendUrl = 'http://127.0.0.1:5000/chat';
 
-        // Usa FormData para enviar texto e arquivo
-        const formData = new FormData();
-        formData.append('prompt', prompt);
-        formData.append('apiKey', userApiKey);
-        formData.append('sessionId', sessionId);
-        if (attachedImageFile) {
-            formData.append('image', attachedImageFile);
-        }
-
         const response = await fetch(backendUrl, {
             method: 'POST',
-            body: formData // Envia o FormData
+            body: formData // Envia o FormData já preparado
         });
 
         if (!response.ok) {
@@ -137,7 +133,6 @@ chatForm.addEventListener('submit', async (event) => {
     }
 });
 
-
 function addCopyButtonsAndHighlight(container) {
     const codeBlocks = container.querySelectorAll('pre code');
     codeBlocks.forEach((codeBlock) => {
@@ -146,22 +141,31 @@ function addCopyButtonsAndHighlight(container) {
         const copyButton = document.createElement('button');
         copyButton.textContent = 'Copiar';
         copyButton.className = 'copy-btn';
+        
         copyButton.addEventListener('click', () => {
             const codeToCopy = codeBlock.textContent;
-            navigator.clipboard.writeText(codeToCopy).then(() => {
+            const textArea = document.createElement('textarea');
+            textArea.value = codeToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
                 copyButton.textContent = 'Copiado!';
-                setTimeout(() => { copyButton.textContent = 'Copiar'; }, 2000);
-            }, (err) => {
+            } catch (err) {
                 console.error('Falha ao copiar texto: ', err);
                 copyButton.textContent = 'Erro!';
-                setTimeout(() => { copyButton.textContent = 'Copiar'; }, 2000);
-            });
+            }
+            document.body.removeChild(textArea);
+
+            setTimeout(() => {
+                copyButton.textContent = 'Copiar';
+            }, 2000);
         });
+
         preElement.appendChild(copyButton);
     });
 }
 
-// Função addMessage atualizada para aceitar uma imagem
 function addMessage(text, type, imageFile = null) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', `${type}-message`);
@@ -171,7 +175,6 @@ function addMessage(text, type, imageFile = null) {
     senderNameElement.textContent = (type === 'user') ? 'Você' : 'Codivaldo';
     messageElement.appendChild(senderNameElement);
 
-    // Se houver uma imagem, cria e adiciona a preview dela na mensagem
     if (imageFile && type === 'user') {
         const imageElement = document.createElement('img');
         imageElement.src = URL.createObjectURL(imageFile);
@@ -179,10 +182,9 @@ function addMessage(text, type, imageFile = null) {
         messageElement.appendChild(imageElement);
     }
     
-    const messageContentElement = document.createElement('span');
-    messageContentElement.classList.add('message-content');
-    
-    if (type === 'user' || text) {
+    if (text) {
+        const messageContentElement = document.createElement('span');
+        messageContentElement.classList.add('message-content');
         messageContentElement.textContent = text;
         messageElement.appendChild(messageContentElement);
     }
@@ -193,5 +195,4 @@ function addMessage(text, type, imageFile = null) {
     return messageElement;
 }
 
-// Inicia a aplicação
 initializeApp();
